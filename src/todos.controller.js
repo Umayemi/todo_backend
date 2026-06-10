@@ -1,26 +1,18 @@
-import { Request, Response } from "express";
+
 import {
   createTodo,
   deleteTodo,
   getAllTodos,
   getTodoById,
   updateTodo,
-} from "./todos.service";
+} from "./todos.service.js";
 
-import {
-createTodoSchema,
-updateTodoSchema
-} from "./validators/todoValidator";
-import { formatZodErrors } from "./utils/zodErrorFormatter";
 
-type TodoParams = {
-  id: string;
-};
 
 export const listTodos = async (
-  _req: Request,
-  res: Response,
-): Promise<void> => {
+  _req,
+  res,
+)=> {
   try {
     const todos = await getAllTodos();
     res.status(200).send({
@@ -35,9 +27,9 @@ export const listTodos = async (
 };
 
 export const getTodo = async (
-  req: Request<TodoParams>,
-  res: Response,
-): Promise<void> => {
+  req,
+  res,
+) => {
   try {
     const todo = await getTodoById(req.params.id);
       if (!todo) {
@@ -55,21 +47,14 @@ export const getTodo = async (
 };
 
 export const createTodoHandler = async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
-  const result = createTodoSchema.safeParse(req.body);
+  req,
+  res,
+) => {
 
-  if (!result.success) {
-    res.status(400).json({
-      message: "Validation failed",
-      errors: formatZodErrors(result.error.issues),
-    });
-    return;
-  }
+
 
   try {
-    const todo = await createTodo(result.data);
+    const todo = await createTodo(req.body);
 
     res.status(201).json({
       message: "Todo created successfully",
@@ -85,21 +70,13 @@ export const createTodoHandler = async (
 };
 
 export const updateTodoHandler = async (
-  req: Request<TodoParams>,
-  res: Response
-): Promise<void> => {
-  const result = updateTodoSchema.safeParse(req.body);
+  req,
+  res
+)=> {
 
-  if (!result.success) {
-    res.status(400).json({
-      message: "Validation failed",
-      errors: formatZodErrors(result.error.issues),
-    });
-    return;
-  }
 
   try {
-    const todo = await updateTodo(req.params.id, result.data);
+    const todo = await updateTodo(req.params.id, req.body);
 
     res.status(200).json({
       message: "Todo updated successfully",
@@ -115,9 +92,9 @@ export const updateTodoHandler = async (
 };
 
 export const deleteTodoHandler = async (
-  req: Request<TodoParams>,
-  res: Response,
-): Promise<void> => {
+  req,
+  res,
+) => {
   try {
     await deleteTodo(req.params.id);
     res.status(200).send({ message: "Todo deleted successfully" });

@@ -5,7 +5,7 @@ listTodos,
   createTodoHandler,
   updateTodoHandler,
   deleteTodoHandler
-} from "./todos.controller";
+} from "./todos.controller.js";
 const router = Router();
 
 router.get("/todos", listTodos);
