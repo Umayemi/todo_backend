@@ -30,7 +30,6 @@ npm start
 
 ## API endpoints
 
-- `GET /` health and route summary
 - `GET /todos` list all todos
 - `GET /todos/:id` get one todo
 - `POST /todos` create a todo
