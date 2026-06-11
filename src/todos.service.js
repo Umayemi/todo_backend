@@ -1,65 +1,67 @@
 import crypto from "crypto";
-import fs from "fs/promises";
+import fs from "fs";
 import path from "path";
+import XLSX from "xlsx";
+
+const FILE = "todos.xlsx";
 
 
+const ensureExcelFile =  (data) => {
+const ws = XLSX.utils.json_to_sheet(data);
 
-const filePath = path.join(process.cwd(), "data", "todos.json");
-const initialValue = [];
+  const wb = XLSX.utils.book_new();
 
-const ensureStore = async () => {
-  const directoryPath = path.dirname(filePath);
+  XLSX.utils.book_append_sheet(
+    wb,
+    ws,
+    "Todos"
+  );
 
-  await fs.mkdir(directoryPath, { recursive: true });
-
-  try {
-    await fs.access(filePath);
-  } catch {
-    await fs.writeFile(
-      filePath,
-      JSON.stringify(initialValue, null, 2),
-      "utf-8"
-    );
-  }
-};
-
-const readTodos = async () => {
-  await ensureStore();
-
-  const content = await fs.readFile(filePath, "utf-8");
-
-  return JSON.parse(content) 
-};
-
- const writeTodos = async (
-  todos
-) => {
-  await ensureStore();
-
-  await fs.writeFile(
-    filePath,
-    JSON.stringify(todos, null, 2),
-    "utf-8"
+  XLSX.writeFile(
+    wb,
+    FILE
   );
 };
 
+ const readExcelFile = () => {
+  if (!fs.existsSync(FILE))
+    return [];
+
+  const wb =
+    XLSX.readFile(FILE);
+
+  const ws =
+    wb.Sheets["Todos"];
+
+  return XLSX.utils.sheet_to_json(ws);
+};
 
 
 
 
 export const getAllTodos = ()=> {
-  return readTodos();
+  return readExcelFile();
 };
 
 export const getTodoById = async (
   id
 ) => {
-  const todos = await readTodos();
+  const todos = await readExcelFile();
   return todos.find((todo) => todo.id === id);
 };
 
+
 export const createTodo = async (input) => {
-  const todos = await readTodos();
+  const todos = await readExcelFile();
+    const exists = todos.some(
+    (todo) =>
+      todo.title.trim().toLowerCase() ===
+      input.title.trim().toLowerCase()
+  );
+
+  if (exists) {
+    return false;
+  }
   const timestamp = new Date().toISOString();
 
   const todo = {
@@ -71,31 +73,40 @@ export const createTodo = async (input) => {
   };
 
   todos.push(todo);
-  await writeTodos(todos);
+  await ensureExcelFile(todos);
   return todo;
 }
 
-export async function updateTodo(id, input) {
+export const updateTodo = async (id, input) => {
   const todos = await getAllTodos();
-  const todoIndex = todos.findIndex((todo) => todo.id === id);
-  const currentTodo = todos[todoIndex];
+  const todo = todos.find((todo) => todo.id === id);
+  if (!todo) {
+    return null;
+  }
   const updatedTodo= {
-    ...currentTodo,
-    title: input.title ?? currentTodo.title,
-    status: input.status ?? currentTodo.status,
+    ...todo,
+    title: input.title ?? todo.title,
+    status: input.status ?? todo.status,
     updatedAt: new Date().toISOString()
   };
 
+  const todoIndex = todos.indexOf(todo);
   todos[todoIndex] = updatedTodo;
-  await writeTodos(todos);
+  await ensureExcelFile(todos);
   return updatedTodo;
+
 }
 
-export async function deleteTodo(id) {
+export const deleteTodo = async (id) => {
   const todos = await getAllTodos();
+    const exists = todos.find(
+    (todo) => todo.id === id
+  );
+
+  if (!exists) {
+    return false;
+  }
   const filteredTodos = todos.filter((todo) => todo.id !== id);
-
- 
-
-  await writeTodos(filteredTodos);
+  await ensureExcelFile(filteredTodos);
+  return true;
 }
