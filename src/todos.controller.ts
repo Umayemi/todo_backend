@@ -1,7 +1,9 @@
-import * as todoService from "./todos.service.js";
+import { Request, Response } from "express";
+import * as todoService from "./todos.service";
+
 export const getAllTodos = async (
-  _req,
-  res,
+  _req: Request,
+  res: Response,
 )=> {
   try {
     const todos = await todoService.getAllTodos();
@@ -17,8 +19,8 @@ export const getAllTodos = async (
 };
 
 export const getTodo = async (
-  req,
-  res,
+  req: Request<{ id: string }>,
+  res:Response,
 ) => {
   try {
     const todo = await todoService.getTodoById(req.params.id);
@@ -37,8 +39,8 @@ export const getTodo = async (
 };
 
 export const createTodo = async (
-  req,
-  res,
+  req: Request,
+  res: Response,
 ) => {
 
 
@@ -65,8 +67,8 @@ export const createTodo = async (
 };
 
 export const updateTodo = async (
-  req,
-  res
+  req: Request<{ id: string }>,
+  res: Response,
 )=> {
 
 
@@ -90,8 +92,8 @@ export const updateTodo = async (
 };
 
 export const deleteTodo = async (
-  req,
-  res,
+  req: Request<{ id: string }>,
+  res: Response,
 ) => {
   try {
     const deleted = await todoService.deleteTodo(req.params.id);

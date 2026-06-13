@@ -1,13 +1,14 @@
 import crypto from "crypto";
-import fs from "fs";
-import path from "path";
+import { promises as fs } from "fs";
 import XLSX from "xlsx";
+import type { Todo, CreateTodo, UpdateTodo } from "./types/todos";
 
 const FILE = "todos.xlsx";
 
 
-const ensureExcelFile =  (data) => {
-const ws = XLSX.utils.json_to_sheet(data);
+
+const ensureExcelFile = async (data: Todo[]) => {
+  const ws = XLSX.utils.json_to_sheet(data);
 
   const wb = XLSX.utils.book_new();
 
@@ -17,41 +18,47 @@ const ws = XLSX.utils.json_to_sheet(data);
     "Todos"
   );
 
-  XLSX.writeFile(
-    wb,
-    FILE
-  );
+  const buffer = XLSX.write(wb, { type: "buffer", bookType: "xlsx" });
+  await fs.writeFile(FILE, buffer);
 };
 
- const readExcelFile = () => {
-  if (!fs.existsSync(FILE))
+const readExcelFile = async (): Promise<Todo[]> => {
+  try {
+    await fs.access(FILE);
+  } catch {
     return [];
+  }
 
-  const wb =
-    XLSX.readFile(FILE);
+  const file = await fs.readFile(FILE);
+  const wb = XLSX.read(file, { type: "buffer" });
 
-  const ws =
-    wb.Sheets["Todos"];
+  const ws = wb.Sheets["Todos"];
 
-  return XLSX.utils.sheet_to_json(ws);
+  if (!ws) {
+    return [];
+  }
+
+  return XLSX.utils.sheet_to_json<Todo>(ws);
 };
 
 
 
 
-export const getAllTodos = ()=> {
-  return readExcelFile();
+export const getAllTodos = async (): Promise<Todo[]> => {
+  return await readExcelFile();
 };
 
 export const getTodoById = async (
-  id
-) => {
+  id: string
+): Promise<Todo | undefined> => {
   const todos = await readExcelFile();
   return todos.find((todo) => todo.id === id);
 };
 
 
-export const createTodo = async (input) => {
+export const createTodo = async (
+  input: CreateTodo
+): Promise<Todo | false> => {
   const todos = await readExcelFile();
     const exists = todos.some(
     (todo) =>
@@ -64,7 +71,7 @@ export const createTodo = async (input) => {
   }
   const timestamp = new Date().toISOString();
 
-  const todo = {
+  const todo: Todo = {
     id: crypto.randomUUID(),
     title: input.title,
     status: input.status,
@@ -75,15 +82,18 @@ export const createTodo = async (input) => {
   todos.push(todo);
   await ensureExcelFile(todos);
   return todo;
-}
+};
 
-export const updateTodo = async (id, input) => {
+export const updateTodo = async (
+  id: string,
+  input: UpdateTodo
+): Promise<Todo | null> => {
   const todos = await getAllTodos();
   const todo = todos.find((todo) => todo.id === id);
   if (!todo) {
     return null;
   }
-  const updatedTodo= {
+  const updatedTodo: Todo = {
     ...todo,
     title: input.title ?? todo.title,
     status: input.status ?? todo.status,
@@ -95,9 +105,9 @@ export const updateTodo = async (id, input) => {
   await ensureExcelFile(todos);
   return updatedTodo;
 
-}
+};
 
-export const deleteTodo = async (id) => {
+export const deleteTodo = async (id: string): Promise<boolean> => {
   const todos = await getAllTodos();
     const exists = todos.find(
     (todo) => todo.id === id
@@ -109,4 +119,4 @@ export const deleteTodo = async (id) => {
   const filteredTodos = todos.filter((todo) => todo.id !== id);
   await ensureExcelFile(filteredTodos);
   return true;
-}
+};

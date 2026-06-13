@@ -5,7 +5,7 @@ getAllTodos,
   createTodo,
   updateTodo,
   deleteTodo
-} from "./todos.controller.js";
+} from "./todos.controller";
 const router = Router();
 
 router.get("/todos", getAllTodos);
