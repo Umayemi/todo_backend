@@ -46,12 +46,13 @@ export const createTodo = async (
 
 
   try {
-    const todo = await todoService.createTodo(req.body);
- if (!todo) {
-      return res.status(409).send({
-        message: "Todo title already exists",
-      });
+    const existingTodo = await todoService.findTodoByTitle(req.body.title);
+    if (existingTodo) {
+      res.status(409).send({ message: "Todo already exists" });
+      return;
     }
+    const todo = await todoService.createTodo(req.body);
+
 
     res.status(201).send({
       message: "Todo created successfully",
@@ -73,11 +74,13 @@ export const updateTodo = async (
 
 
   try {
-    const todo = await todoService.updateTodo(req.params.id, req.body);
-    if (!todo) {
+
+    const existingTodo = await todoService.getTodoById(req.params.id);
+     if (!existingTodo) {
       res.status(404).send({ message: "Todo not found" });
       return;
     }
+    const todo = await todoService.updateTodo(req.params.id, req.body);
     res.status(200).send({
       message: "Todo updated successfully",
       data: todo,
@@ -96,11 +99,13 @@ export const deleteTodo = async (
   res: Response,
 ) => {
   try {
-    const deleted = await todoService.deleteTodo(req.params.id);
-    if (!deleted) {
+       const existingTodo = await todoService.getTodoById(req.params.id);
+     if (!existingTodo) {
       res.status(404).send({ message: "Todo not found" });
       return;
     }
+    await todoService.deleteTodo(req.params.id);
+  
     res.status(200).send({ message: "Todo deleted successfully" });
   } catch (error) {
     res.status(500).send({ message: "Internal Server Error" });

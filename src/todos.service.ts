@@ -56,19 +56,23 @@ export const getTodoById = async (
 };
 
 
-export const createTodo = async (
-  input: CreateTodo
-): Promise<Todo | false> => {
+export const findTodoByTitle = async (
+  title: string
+): Promise<Todo | undefined> => {
   const todos = await readExcelFile();
-    const exists = todos.some(
+
+  return todos.find(
     (todo) =>
       todo.title.trim().toLowerCase() ===
-      input.title.trim().toLowerCase()
+      title.trim().toLowerCase()
   );
+};
 
-  if (exists) {
-    return false;
-  }
+export const createTodo = async (
+  input: CreateTodo
+): Promise<Todo> => {
+  const todos = await readExcelFile();
+
   const timestamp = new Date().toISOString();
 
   const todo: Todo = {
@@ -80,43 +84,39 @@ export const createTodo = async (
   };
 
   todos.push(todo);
+
   await ensureExcelFile(todos);
+
   return todo;
 };
 
 export const updateTodo = async (
   id: string,
   input: UpdateTodo
-): Promise<Todo | null> => {
-  const todos = await getAllTodos();
-  const todo = todos.find((todo) => todo.id === id);
-  if (!todo) {
-    return null;
-  }
+): Promise<Todo> => {
+  const todos = await readExcelFile();
+
+  const index = todos.findIndex((todo) => todo.id === id);
+
   const updatedTodo: Todo = {
-    ...todo,
-    title: input.title ?? todo.title,
-    status: input.status ?? todo.status,
+    ...todos[index],
+    title: input.title ?? todos[index].title,
+    status: input.status ?? todos[index].status,
     updatedAt: new Date().toISOString()
   };
 
-  const todoIndex = todos.indexOf(todo);
-  todos[todoIndex] = updatedTodo;
-  await ensureExcelFile(todos);
-  return updatedTodo;
+  todos[index] = updatedTodo;
 
+  await ensureExcelFile(todos);
+
+  return updatedTodo;
 };
 
-export const deleteTodo = async (id: string): Promise<boolean> => {
-  const todos = await getAllTodos();
-    const exists = todos.find(
-    (todo) => todo.id === id
-  );
 
-  if (!exists) {
-    return false;
-  }
+export const deleteTodo = async (id: string): Promise<void> => {
+  const todos = await readExcelFile();
+
   const filteredTodos = todos.filter((todo) => todo.id !== id);
+
   await ensureExcelFile(filteredTodos);
-  return true;
 };
