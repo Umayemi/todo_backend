@@ -2,11 +2,11 @@ import { Request, Response } from "express";
 import * as todoService from "./todos.service";
 
 export const getAllTodos = async (
-  _req: Request,
+  req: Request,
   res: Response,
 )=> {
   try {
-    const todos = await todoService.getAllTodos();
+    const todos = await todoService.getAllTodos(req);
     res.status(200).send({
       message: "Todos retrieved successfully",
       data: todos,

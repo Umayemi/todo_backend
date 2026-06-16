@@ -6,7 +6,7 @@ export interface CreateTodo {
 }
 
 export interface Todo {
-  id: string;
+  
   title: string;
   status: Status;
   createdAt: string;

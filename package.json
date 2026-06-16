@@ -4,14 +4,15 @@
   "description": "Simple todo app API with Node.js and TypeScript, no database.",
   "main": "dist/server.js",
   "scripts": {
-   "dev": "nodemon src/server.ts --exec ts-node",
-   "build": "tsc",
+    "dev": "nodemon src/server.ts --exec ts-node",
+    "build": "tsc",
     "start": "node dist/server.js"
   },
-   "license": "ISC",
+  "license": "ISC",
   "dependencies": {
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
+    "mongodb": "^7.3.0",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
