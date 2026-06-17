@@ -6,12 +6,14 @@ getAllTodos,
   updateTodo,
   deleteTodo
 } from "./todos.controller";
-const router = Router();
+import { validator } from "./middlewares/validator";
+import { getTodosSchema, createTodoSchema, updateTodoSchema } from "./schemas/todo";
 
-router.get("/todos", getAllTodos);
+const router = Router();
+router.get("/todos",validator(getTodosSchema), getAllTodos);
 router.get("/todos/:id", getTodo);
-router.post("/todos", createTodo);
-router.patch("/todos/:id", updateTodo);
+router.post("/todos",  validator(createTodoSchema),createTodo);
+router.patch("/todos/:id",validator(updateTodoSchema), updateTodo);
 router.delete("/todos/:id", deleteTodo);
 
 export default router;

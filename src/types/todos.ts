@@ -1,4 +1,4 @@
-type Status = "doing" | "ongoing" | "completed";
+type Status =  "todo"| "doing" | "completed";
 
 export interface CreateTodo {
   title: string;
