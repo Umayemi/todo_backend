@@ -2,18 +2,18 @@ type Status =  "todo"| "doing" | "completed";
 
 export interface CreateTodo {
   title: string;
-  status: Status;
+  status: string;
 }
 
 export interface Todo {
   
   title: string;
-  status: Status;
+  status: string;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface UpdateTodo {
   title?: string;
-  status?: Status;
+  status?: string;
 }

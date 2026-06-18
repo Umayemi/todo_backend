@@ -9,17 +9,14 @@ const todoBodySchema = z.object({
 });
 
 
-export const createTodoSchema = z.object({
-  body: todoBodySchema,
-});
+export const createTodoSchema = todoBodySchema
 
 
-export const updateTodoSchema = z.object({
-  body: todoBodySchema.partial(),
-});
+
+export const updateTodoSchema = todoBodySchema.partial();
 
 export const getTodosSchema = z.object({
-  query: z.object({
+
     page: z.coerce.number().min(1).optional(),
 
     limit: z.coerce.number()
@@ -28,5 +25,5 @@ export const getTodosSchema = z.object({
       .optional(),
 
     status: z.enum(status).optional(),
-  }),
-});
+  })
+;

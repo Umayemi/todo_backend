@@ -1,8 +1,9 @@
 
 import type { Todo, CreateTodo, UpdateTodo } from "./types/todos";
 import { getDB } from "./config/db";
-import { Collection, ObjectId } from "mongodb";
+import { Collection, ObjectId ,Filter} from "mongodb";
 import { Request } from "express";
+
 const dbCollection = (): Collection<Todo> => getDB().collection("todos");
 
 
@@ -15,7 +16,7 @@ export const getAllTodos = async (req: Request): Promise<Todo[]> => {
    const title = req.query.search as string;
   const status = req.query.status as string;
 
-  const filter: Record<string, unknown> = {};
+  const filter: Filter<Todo> = {};
 
   if (title) {
     filter.title = {
