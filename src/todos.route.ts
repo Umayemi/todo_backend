@@ -13,7 +13,7 @@ const router = Router();
 router.get("/todos",queryValidator(getTodosSchema), getAllTodos);
 router.get("/todos/:id", getTodo);
 router.post("/todos",  bodyValidator(createTodoSchema),createTodo);
-router.patch("/todos/:id",paramsValidator(updateTodoSchema), updateTodo);
+router.patch("/todos/:id",bodyValidator(updateTodoSchema), updateTodo);
 router.delete("/todos/:id", deleteTodo);
 
 export default router;
